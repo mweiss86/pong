@@ -14,10 +14,6 @@ public class GamePanel extends JPanel implements Runnable {
     static final int BALL_DIAMETER = 20;
     static final int PADDLE_WIDTH = 25;
     static final int PADDLE_HEIGHT = 100;
-    //static final int UPS = 10; //Updates per second (game logic speed) - higher = faster | lower = slower
-    //static final int FPS = 60; // Frames per second (rendering speed)
-    //static final long UPDATE_INTERVAL = 1000 / UPS;        // Time per update in ms
-    //static final long FRAME_TIME = 1000 / FPS;
     int fps;
     int frameCount;
     long lastFpsUpdate = System.currentTimeMillis();// Time per frame in ms
@@ -63,21 +59,23 @@ public class GamePanel extends JPanel implements Runnable {
             paddle2.draw(g);
             ball.draw(g);
             score.draw(g);
+            futureball.draw(g);
+
         }
-        else{
+        else {
             g.setColor(Color.WHITE);
-            g.setFont(new Font("Consolas",Font.PLAIN,60));
-            g.drawString("Press Enter to start",(GAME_WIDTH/2)-300,GAME_HEIGHT/2);
-            g.setFont(new Font("Consolas",Font.PLAIN,20));
-            g.drawString("Press Space to switch Multiplayermode",(GAME_WIDTH/2)-200,(GAME_HEIGHT/2)+50);
+            g.setFont(new Font("Consolas", Font.PLAIN, 60));
+            g.drawString("Press Enter to start", (GAME_WIDTH / 2) - 300, GAME_HEIGHT / 2);
+            g.setFont(new Font("Consolas", Font.PLAIN, 20));
+            g.drawString("Press Space to switch Multiplayermode", (GAME_WIDTH / 2) - 200, (GAME_HEIGHT / 2) + 50);
             if (multiplayer) {
-                g.drawString("Multiplayer: ON",(GAME_WIDTH/2)-100,(GAME_HEIGHT/2)+80);
+                g.drawString("Multiplayer: ON", (GAME_WIDTH / 2) - 100, (GAME_HEIGHT / 2) + 80);
             }
             else {
-                g.drawString("Multiplayer: OFF",(GAME_WIDTH/2)-100,(GAME_HEIGHT/2)+80);
+                g.drawString("Multiplayer: OFF", (GAME_WIDTH / 2) - 100, (GAME_HEIGHT / 2) + 80);
             }
         }
-        futureball.draw(g);
+
         Toolkit.getDefaultToolkit().sync();
 
         // Draw FPS counter
@@ -117,31 +115,17 @@ public class GamePanel extends JPanel implements Runnable {
                 paddle2.pcMove(detectCollideY);
             }
             futureball.move();
-        }
-        else {
+        } else {
             paddle2.move();
         }
         ball.move();
     }
 
-    public void checkCollisionMulti(){
+    public void checkCollisionMulti() {
         // Ball Collision prediction
         if (detectCollideY == -1) {
             for (int i = 0; i < 10; i++) {
                 futureball.move();
-                /*
-                if (futureball.intersects(paddle1)) {
-                    futureball.xVelocity = Math.abs(futureball.xVelocity);
-                    futureball.xVelocity++;
-                    // if (ball.yVelocity > 0) {
-                    //     ball.yVelocity++;
-                    // }
-                    futureball.yVelocity--;
-                    futureball.setXDirection(futureball.xVelocity);
-                    futureball.setYDirection(futureball.yVelocity);
-                }
-
-                 */
 
                 if (futureball.y <= 0) {
                     futureball.setYDirection(-futureball.yVelocity);
@@ -149,26 +133,13 @@ public class GamePanel extends JPanel implements Runnable {
                 if (futureball.y >= GAME_HEIGHT - BALL_DIAMETER) {
                     futureball.setYDirection(-futureball.yVelocity);
                 }
-                /*
-                if (futureball.intersects(paddle2)) {
-                    futureball.xVelocity = Math.abs(futureball.xVelocity);
-                    futureball.xVelocity++;
-                    // if (futureball.yVelocity > 0) {
-                    //     futureball.yVelocity++;
-                    // }
-                    futureball.yVelocity--;
-                    futureball.setXDirection(-futureball.xVelocity);
-                    futureball.setYDirection(futureball.yVelocity);
-                }
-
-                 */
                 if (futureball.x >= GAME_WIDTH - BALL_DIAMETER) {
                     detectCollideY = futureball.y;
                     break;
                 }
             }
         }
-        if(ball.intersects(paddle1)){
+        if (ball.intersects(paddle1)) {
             futureball = new Ball(ball);
             detectCollideY = -1;
         }
@@ -244,39 +215,17 @@ public class GamePanel extends JPanel implements Runnable {
             delta += (now - lastTime) / ns;
             lastTime = now;
             if (delta >= 1) {
-                if(startGame) {
-                   move();
-                   checkCollision();
-                   if (!multiplayer) {
-                       checkCollisionMulti();
-                   }
-               }
+                if (startGame) {
+                    move();
+                    checkCollision();
+                    if (!multiplayer) {
+                        checkCollisionMulti();
+                    }
+                }
                 repaint();
                 delta--;
             }
         }
-
-        /*
-        long lastUpdate = System.currentTimeMillis();
-        long lastFrame = System.currentTimeMillis();
-
-        while (true) {
-            long currentTime = System.currentTimeMillis();
-
-            // Update Game Logic at UPS rate
-            if (currentTime - lastUpdate >= UPDATE_INTERVAL) {
-                updateGame();
-                lastUpdate = currentTime;
-            }
-
-            // Render the Game at FPS rate
-            if (currentTime - lastFrame >= FRAME_TIME) {
-                repaint();
-                lastFrame = currentTime;
-            }
-        }
-
-         */
     }
 
     private class MyKeyAdapter extends KeyAdapter {
@@ -286,7 +235,7 @@ public class GamePanel extends JPanel implements Runnable {
             if (!multiplayer) {
                 paddle2.keyPressed(e);
             }
-            switch (e.getKeyCode()){
+            switch (e.getKeyCode()) {
                 case KeyEvent.VK_ENTER:
                     if (!startGame) {
                         startGame = true;

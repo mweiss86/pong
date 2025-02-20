@@ -31,10 +31,6 @@ public class Ball extends Rectangle{
         super(b.x,b.y,b.width,b.height);
         xVelocity = b.xVelocity;
         yVelocity = b.yVelocity;
-        //randomXDirection = b.randomXDirection;
-        //randomYDirection = b.randomYDirection;
-        //setXDirection(randomXDirection*initialSpeed);
-        //setYDirection(randomYDirection*initialSpeed);
     }
 
     public void setXDirection(int randomXDirection){
