@@ -14,15 +14,17 @@ public class GamePanel extends JPanel implements Runnable {
     static final int BALL_DIAMETER = 20;
     static final int PADDLE_WIDTH = 25;
     static final int PADDLE_HEIGHT = 100;
-    static final int UPS = 10; //Updates per second (game logic speed) - higher = faster | lower = slower
-    static final int FPS = 60; // Frames per second (rendering speed)
-    static final long UPDATE_INTERVAL = 1000 / UPS;        // Time per update in ms
-    static final long FRAME_TIME = 1000 / FPS;
+    //static final int UPS = 10; //Updates per second (game logic speed) - higher = faster | lower = slower
+    //static final int FPS = 60; // Frames per second (rendering speed)
+    //static final long UPDATE_INTERVAL = 1000 / UPS;        // Time per update in ms
+    //static final long FRAME_TIME = 1000 / FPS;
     int fps;
     int frameCount;
     long lastFpsUpdate = System.currentTimeMillis();// Time per frame in ms
     int detectCollideY = -1;
     boolean goTo = false;
+    boolean multiplayer = false;
+    boolean startGame = false;
     Thread gameThread;
     Image image;
     Graphics graphics;
@@ -56,11 +58,26 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void draw(Graphics g) {
-        paddle1.draw(g);
-        paddle2.draw(g);
-        ball.draw(g);
-        score.draw(g);
-       // futureball.draw(g);
+        if (startGame) {
+            paddle1.draw(g);
+            paddle2.draw(g);
+            ball.draw(g);
+            score.draw(g);
+        }
+        else{
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Consolas",Font.PLAIN,60));
+            g.drawString("Press Enter to start",(GAME_WIDTH/2)-300,GAME_HEIGHT/2);
+            g.setFont(new Font("Consolas",Font.PLAIN,20));
+            g.drawString("Press Space to switch Multiplayermode",(GAME_WIDTH/2)-200,(GAME_HEIGHT/2)+50);
+            if (multiplayer) {
+                g.drawString("Multiplayer: ON",(GAME_WIDTH/2)-100,(GAME_HEIGHT/2)+80);
+            }
+            else {
+                g.drawString("Multiplayer: OFF",(GAME_WIDTH/2)-100,(GAME_HEIGHT/2)+80);
+            }
+        }
+        futureball.draw(g);
         Toolkit.getDefaultToolkit().sync();
 
         // Draw FPS counter
@@ -80,26 +97,81 @@ public class GamePanel extends JPanel implements Runnable {
     public void newPaddles() {
         paddle1 = new Paddle(0, (GAME_HEIGHT / 2) - (PADDLE_HEIGHT / 2), PADDLE_WIDTH, PADDLE_HEIGHT, 1);
         paddle2 = new Paddle(GAME_WIDTH - PADDLE_WIDTH, (GAME_HEIGHT / 2) - (PADDLE_HEIGHT / 2), PADDLE_WIDTH, PADDLE_HEIGHT, 2);
-
     }
 
     public void newBall() {
         random = new Random();
         ball = new Ball((GAME_WIDTH / 2) - (BALL_DIAMETER / 2), random.nextInt(GAME_HEIGHT - BALL_DIAMETER), BALL_DIAMETER, BALL_DIAMETER);
-        futureball = new Ball(ball);
+        if (!multiplayer) {
+            futureball = new Ball(ball);
+        }
     }
 
     public void move() {
         paddle1.move();
-        //paddle2.move();
-        if(Math.abs((paddle2.height/2)-detectCollideY) < 3 && !goTo){
-            goTo = true;
+        if (!multiplayer) {
+            if (Math.abs((paddle2.height / 2) - detectCollideY) < 3 && !goTo) {
+                goTo = true;
+            }
+            if (!goTo) {
+                paddle2.pcMove(detectCollideY);
+            }
+            futureball.move();
         }
-        if (!goTo) {
-            paddle2.pcMove(detectCollideY);
+        else {
+            paddle2.move();
         }
         ball.move();
-        futureball.move();
+    }
+
+    public void checkCollisionMulti(){
+        // Ball Collision prediction
+        if (detectCollideY == -1) {
+            for (int i = 0; i < 10; i++) {
+                futureball.move();
+                /*
+                if (futureball.intersects(paddle1)) {
+                    futureball.xVelocity = Math.abs(futureball.xVelocity);
+                    futureball.xVelocity++;
+                    // if (ball.yVelocity > 0) {
+                    //     ball.yVelocity++;
+                    // }
+                    futureball.yVelocity--;
+                    futureball.setXDirection(futureball.xVelocity);
+                    futureball.setYDirection(futureball.yVelocity);
+                }
+
+                 */
+
+                if (futureball.y <= 0) {
+                    futureball.setYDirection(-futureball.yVelocity);
+                }
+                if (futureball.y >= GAME_HEIGHT - BALL_DIAMETER) {
+                    futureball.setYDirection(-futureball.yVelocity);
+                }
+                /*
+                if (futureball.intersects(paddle2)) {
+                    futureball.xVelocity = Math.abs(futureball.xVelocity);
+                    futureball.xVelocity++;
+                    // if (futureball.yVelocity > 0) {
+                    //     futureball.yVelocity++;
+                    // }
+                    futureball.yVelocity--;
+                    futureball.setXDirection(-futureball.xVelocity);
+                    futureball.setYDirection(futureball.yVelocity);
+                }
+
+                 */
+                if (futureball.x >= GAME_WIDTH - BALL_DIAMETER) {
+                    detectCollideY = futureball.y;
+                    break;
+                }
+            }
+        }
+        if(ball.intersects(paddle1)){
+            futureball = new Ball(ball);
+            detectCollideY = -1;
+        }
     }
 
     public void checkCollision() {
@@ -120,8 +192,7 @@ public class GamePanel extends JPanel implements Runnable {
             ball.yVelocity--;
             ball.setXDirection(ball.xVelocity);
             ball.setYDirection(ball.yVelocity);
-            futureball = new Ball(ball);
-            detectCollideY = -1;
+
         }
         if (ball.intersects(paddle2)) {
             ball.xVelocity = Math.abs(ball.xVelocity);
@@ -133,45 +204,7 @@ public class GamePanel extends JPanel implements Runnable {
             ball.setXDirection(-ball.xVelocity);
             ball.setYDirection(ball.yVelocity);
         }
-        // Ball Collision prediction
-        if (detectCollideY == -1) {
 
-            for (int i = 0; i < 10; i++) {
-                futureball.move();
-                if (futureball.intersects(paddle1)) {
-                    futureball.xVelocity = Math.abs(futureball.xVelocity);
-                    futureball.xVelocity++;
-                    // if (ball.yVelocity > 0) {
-                    //     ball.yVelocity++;
-                    // }
-                    futureball.yVelocity--;
-                    futureball.setXDirection(futureball.xVelocity);
-                    futureball.setYDirection(futureball.yVelocity);
-                }
-                if (futureball.y <= 0) {
-                    futureball.setYDirection(-futureball.yVelocity);
-                }
-                if (futureball.y >= GAME_HEIGHT - BALL_DIAMETER) {
-                    futureball.setYDirection(-futureball.yVelocity);
-                }
-                if (futureball.intersects(paddle2)) {
-                    futureball.xVelocity = Math.abs(futureball.xVelocity);
-                    futureball.xVelocity++;
-                    // if (futureball.yVelocity > 0) {
-                    //     futureball.yVelocity++;
-                    // }
-                    futureball.yVelocity--;
-                    futureball.setXDirection(-futureball.xVelocity);
-                    futureball.setYDirection(futureball.yVelocity);
-                }
-                if (futureball.x >= GAME_WIDTH - BALL_DIAMETER) {
-                    detectCollideY = futureball.y;
-                    break;
-                }
-
-            }
-
-        }
         //Ball scores
         if (ball.x >= GAME_WIDTH - BALL_DIAMETER) {
             score.p1++;
@@ -211,8 +244,13 @@ public class GamePanel extends JPanel implements Runnable {
             delta += (now - lastTime) / ns;
             lastTime = now;
             if (delta >= 1) {
-                move();
-                checkCollision();
+                if(startGame) {
+                   move();
+                   checkCollision();
+                   if (!multiplayer) {
+                       checkCollisionMulti();
+                   }
+               }
                 repaint();
                 delta--;
             }
@@ -245,12 +283,26 @@ public class GamePanel extends JPanel implements Runnable {
         @Override
         public void keyPressed(KeyEvent e) {
             paddle1.keyPressed(e);
-            //paddle2.keyPressed(e);
+            if (!multiplayer) {
+                paddle2.keyPressed(e);
+            }
+            switch (e.getKeyCode()){
+                case KeyEvent.VK_ENTER:
+                    if (!startGame) {
+                        startGame = true;
+                    }
+                case KeyEvent.VK_SPACE:
+                    if (!startGame) {
+                        multiplayer = !multiplayer;
+                    }
+            }
         }
 
         public void keyReleased(KeyEvent e) {
             paddle1.keyReleased(e);
-            // paddle2.keyReleased(e);
+            if (!multiplayer) {
+                paddle2.keyReleased(e);
+            }
         }
     }
 }

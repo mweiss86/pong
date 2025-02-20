@@ -9,17 +9,19 @@ public class Ball extends Rectangle{
     int xVelocity;
     int yVelocity;
     int initialSpeed = 2;
+    int randomXDirection;
+    int randomYDirection;
 
     Ball(int x, int y, int width, int height){
         super(x,y,width,height);
         random = new Random();
-        int randomXDireciton = random.nextInt(2);
-        if (randomXDireciton == 0) {
-            randomXDireciton--;
+        randomXDirection = random.nextInt(2);
+        if (randomXDirection == 0) {
+            randomXDirection--;
         }
-        setXDirection(randomXDireciton*initialSpeed);
+        setXDirection(randomXDirection*initialSpeed);
 
-        int randomYDirection = random.nextInt(2);
+        randomYDirection = random.nextInt(2);
         if(randomYDirection==0) {
             randomYDirection--;
         }
@@ -29,6 +31,10 @@ public class Ball extends Rectangle{
         super(b.x,b.y,b.width,b.height);
         xVelocity = b.xVelocity;
         yVelocity = b.yVelocity;
+        //randomXDirection = b.randomXDirection;
+        //randomYDirection = b.randomYDirection;
+        //setXDirection(randomXDirection*initialSpeed);
+        //setYDirection(randomYDirection*initialSpeed);
     }
 
     public void setXDirection(int randomXDirection){
