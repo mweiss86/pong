@@ -166,8 +166,9 @@ public class GamePanel extends JPanel implements Runnable {
                 }
                 if (futureball.x >= GAME_WIDTH - BALL_DIAMETER) {
                     detectCollideY = futureball.y;
+                    break;
                 }
-                break;
+
             }
 
         }
