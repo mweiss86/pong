@@ -59,7 +59,7 @@ public class GamePanel extends JPanel implements Runnable {
             paddle2.draw(g);
             ball.draw(g);
             score.draw(g);
-            futureball.draw(g);
+            //futureball.draw(g);
 
         }
         else {
@@ -77,7 +77,7 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         Toolkit.getDefaultToolkit().sync();
-
+/*
         // Draw FPS counter
         g.setColor(Color.white);
         g.setFont(new Font("Arial", Font.PLAIN, 20));
@@ -90,6 +90,8 @@ public class GamePanel extends JPanel implements Runnable {
             frameCount = 0;
             lastFpsUpdate = System.currentTimeMillis();
         }
+
+ */
     }
 
     public void newPaddles() {
