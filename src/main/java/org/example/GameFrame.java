@@ -1,0 +1,21 @@
+package org.example;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+import javax.swing.*;
+
+
+public class GameFrame extends JFrame {
+
+    GameFrame() {
+        this.add(new GamePanel());
+        this.setTitle("Pong");
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setResizable(false);
+        this.setBackground(Color.BLACK);
+        this.pack();
+        this.setVisible(true);
+        this.setLocationRelativeTo(null);
+    }
+
+}
